@@ -10,84 +10,104 @@
 // [  HEADER  ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#include "Foundation/Core/Elixir-Executor.hpp"
+#include "Foundation/Controller/Elixir-Misc.hpp"
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// [ EXTERNAL ]
+// [   DATA   ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-namespace Elixir::Factory
+namespace Elixir::Controller::Misc
 {
-    // -=(Undocumented)=-
-    extern void On_Action_Mode(bool Inventory);
-
-    // -=(Undocumented)=-
-    extern void On_Action_Use(uint16_t Slot, bool Cursor, bool Key);
-
-    // -=(Undocumented)=-
-    extern void On_Action_Cast(uint16_t Slot, bool Cursor);
-
-    // -=(Undocumented)=-
-    extern void On_Action_Click(uint32_t X, uint32_t Y, Core::Attack Type);
-
-    // -=(Undocumented)=-
-    extern void On_Action_Rotate(Core::Direction Heading);
-
-    // -=(Undocumented)=-
-    extern void On_Action_Pickup();
+    static bool     s_Spin           = false;
+    static uint32_t s_Spin_Direction = 0;
+    static bool     s_Pick           = true;
+    static uint32_t s_Pick_Last_X    = 0;
+    static uint32_t s_Pick_Last_Y    = 0;
 }
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // [   CODE   ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-namespace Elixir::Core::Executor
+namespace Elixir::Controller::Misc
 {
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Execute_Do_Mode(bool Inventory)
+    void Set_Spin(bool Active)
     {
-        Factory::On_Action_Mode(Inventory);
+        s_Spin = Active;
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Execute_Do_Use(uint32_t Slot, bool Cursor, bool Key)
+    bool Get_Spin()
     {
-        Factory::On_Action_Use(Slot, Cursor, Key);
+        return s_Spin;
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Execute_Do_Cast(uint32_t Slot, bool Cursor)
+    void Set_Pick(bool Active)
     {
-        Factory::On_Action_Cast(Slot, Cursor);
+        s_Pick = Active;
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Execute_Do_Click(uint32_t X, uint32_t Y, Attack Type)
+    bool Get_Pick()
     {
-        Factory::On_Action_Click(X, Y, Type);
+        return s_Pick;
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Execute_Do_Rotate(Direction Heading)
+    void On_Module_Load(HANDLE File)
     {
-        Factory::On_Action_Rotate(Heading);
+        ::ReadFile(File, & s_Spin, sizeof(s_Spin), nullptr, nullptr);
+        ::ReadFile(File, & s_Pick, sizeof(s_Pick), nullptr, nullptr);
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Execute_Do_Pickup()
+    void On_Module_Save(HANDLE File)
     {
-        Factory::On_Action_Pickup();
+        ::WriteFile(File, & s_Spin, sizeof(s_Spin), nullptr, nullptr);
+        ::WriteFile(File, & s_Pick, sizeof(s_Pick), nullptr, nullptr);
+    }
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    bool On_Module_Tick(uint32_t Time)
+    {
+        if (Core::Is_Alive())
+        {
+            if (s_Spin && Core::Is_Allowed(Core::Action::Rotate, 200))
+            {
+                s_Spin_Direction = (s_Spin_Direction + 1) % 4;
+
+                Core::Do_Rotate(static_cast<Core::Direction>(s_Spin_Direction + 1));
+            }
+
+            const Core::Entity * Character = Core::Get_Possession();
+
+            if (s_Pick && (s_Pick_Last_X != Character->X || s_Pick_Last_Y != Character->Y))
+            {
+                s_Pick_Last_X = Character->X;
+                s_Pick_Last_Y = Character->Y;
+
+                if (const Core::Object * Object = Core::Find_Object(s_Pick_Last_X, s_Pick_Last_Y))
+                {
+                    Core::Executor::Execute_Do_Pickup();
+                }
+            }
+        }
+        return true;
     }
 }

@@ -1,5 +1,5 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2016-2020 by Agustin Alvarez. All rights reserved.
+// Copyright (C) 2016-2021 by Agustin Alvarez. All rights reserved.
 //
 // This work is licensed under the terms of the Apache License, Version 2.0.
 //
@@ -18,8 +18,10 @@
 
 namespace Elixir::Core
 {
-    static uint32_t            s_Area_X;
-    static uint32_t            s_Area_Y;
+    static uint32_t            s_Area_Min_X;
+    static uint32_t            s_Area_Min_Y;
+    static uint32_t            s_Area_Max_X;
+    static uint32_t            s_Area_Max_Y;
     static std::vector<Object> s_Objects;
     static std::vector<Entity> s_Entities;
     static std::mutex          s_Entities_Lock;
@@ -34,13 +36,13 @@ namespace Elixir::Core
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    bool _Check_Object(const Object & Object)
+    bool Check_Object(const Object & Object)
     {
 #ifdef SETTING_AREA
         const uint32_t zX = Object.X;
         const uint32_t zY = Object.Y;
 
-        return (zX < s_Area_X || zY < s_Area_Y || zX > s_Area_X + SETTING_AREA_MAX_X || zY > s_Area_Y + SETTING_AREA_MAX_Y);
+        return (zX < s_Area_Min_X || zY < s_Area_Min_Y || zX > s_Area_Max_X || zY > s_Area_Max_Y);
 #else
         return false;
 #endif
@@ -49,7 +51,7 @@ namespace Elixir::Core
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    bool _Check_Entity(const Entity & Entity)
+    bool Check_Entity(const Entity & Entity)
     {
 #ifdef SETTING_AREA
         const uint32_t zX = Entity.X;
@@ -59,7 +61,7 @@ namespace Elixir::Core
         {
             return false;
         }
-        return (zX < s_Area_X || zY < s_Area_Y || zX > s_Area_X + SETTING_AREA_MAX_X || zY > s_Area_Y + SETTING_AREA_MAX_Y);
+        return (zX < s_Area_Min_X || zY < s_Area_Min_Y || zX > s_Area_Max_X || zY > s_Area_Max_Y);
 #else
         return false;
 #endif
@@ -94,7 +96,7 @@ namespace Elixir::Core
     {
         const std::lock_guard<std::mutex> zLock(s_Entities_Lock);
 
-        if (auto zIterator = std::find_if(s_Entities.begin(), s_Entities.end(), Filter); zIterator != s_Entities.end())
+        if (auto zIterator = std::find_if(s_Entities.begin(), s_Entities.end(), std::move(Filter)); zIterator != s_Entities.end())
         {
             return &* zIterator;
         }
@@ -138,13 +140,15 @@ namespace Elixir::Core
     {
         const std::lock_guard<std::mutex> zLock(s_Entities_Lock);
 
-        s_Area_X = (X / SETTING_AREA_MIN_X - 1) * SETTING_AREA_MIN_X;
-        s_Area_Y = (Y / SETTING_AREA_MIN_Y - 1) * SETTING_AREA_MIN_Y;
+        s_Area_Min_X = max(0, (X / SETTING_AREA_X - 1) * SETTING_AREA_X);
+        s_Area_Min_Y = max(0, (Y / SETTING_AREA_Y - 1) * SETTING_AREA_Y);
+        s_Area_Max_X = min(100, s_Area_Min_X + (SETTING_AREA_X * 3) - 1);
+        s_Area_Max_Y = min(100, s_Area_Min_Y + (SETTING_AREA_Y * 3) - 1);
 
         s_Objects.erase(
-            std::remove_if(s_Objects.begin(), s_Objects.end(), _Check_Object), s_Objects.end());
+            std::remove_if(s_Objects.begin(), s_Objects.end(), Check_Object), s_Objects.end());
         s_Entities.erase(
-            std::remove_if(s_Entities.begin(), s_Entities.end(), _Check_Entity), s_Entities.end());
+            std::remove_if(s_Entities.begin(), s_Entities.end(), Check_Entity), s_Entities.end());
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -177,7 +181,7 @@ namespace Elixir::Core
         Entity->X = X;
         Entity->Y = Y;
 
-        if (_Check_Entity(* Entity))
+        if (Check_Entity(* Entity))
         {
             Destroy_Entity(Entity->ID);
         }
@@ -214,17 +218,17 @@ namespace Elixir::Core
     {
         const std::lock_guard<std::mutex> zLock(s_Entities_Lock);
 
-        s_Entities.erase(std::remove_if(s_Entities.begin(), s_Entities.end(), Filter), s_Entities.end());
+        s_Entities.erase(std::remove_if(s_Entities.begin(), s_Entities.end(), std::move(Filter)), s_Entities.end());
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Create_Object(uint16_t ID, uint16_t X, uint16_t Y)
+    void Create_Object(uint16_t ID, uint16_t X, uint16_t Y, uint32_t Stack)
     {
         const std::lock_guard<std::mutex> zLock(s_Entities_Lock);
 
-        s_Objects.emplace_back(Object { ID, X, Y });
+        s_Objects.emplace_back(Object { ID, X, Y, Stack });
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -234,7 +238,26 @@ namespace Elixir::Core
     {
         const std::lock_guard<std::mutex> zLock(s_Entities_Lock);
 
-        if (auto zIterator = std::find_if(s_Objects.begin(), s_Objects.end(), Filter); zIterator != s_Objects.end())
+        if (auto zIterator = std::find_if(s_Objects.begin(), s_Objects.end(), std::move(Filter)); zIterator != s_Objects.end())
+        {
+            return &* zIterator;
+        }
+        return nullptr;
+    }
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    Object * Find_Object(uint16_t X, uint16_t Y)
+    {
+        const std::lock_guard<std::mutex> zLock(s_Entities_Lock);
+
+        const auto zFilter = [X, Y](const Object & Other)
+        {
+            return (Other.X == X && Other.Y == Y);
+        };
+
+        if (const auto zIterator = std::find_if(s_Objects.begin(), s_Objects.end(), zFilter); zIterator != s_Objects.end())
         {
             return &* zIterator;
         }

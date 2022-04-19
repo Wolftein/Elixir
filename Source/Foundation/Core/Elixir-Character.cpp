@@ -1,5 +1,5 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2016-2020 by Agustin Alvarez. All rights reserved.
+// Copyright (C) 2016-2021 by Agustin Alvarez. All rights reserved.
 //
 // This work is licensed under the terms of the Apache License, Version 2.0.
 //
@@ -139,7 +139,7 @@ namespace Elixir::Core
 
     Entity * Get_Possession()
     {
-        return s_Possession ? Find_Entity(s_Possession) : nullptr;
+        return s_Possession != 0 ? Find_Entity(s_Possession) : nullptr;
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -306,7 +306,17 @@ namespace Elixir::Core
 
     void Update_Possession(uint32_t Possession)
     {
+        if (auto zEntity = Get_Possession(); zEntity)
+        {
+            zEntity->Owned = false;
+        }
+
         s_Possession = Possession;
+
+        if (auto zEntity = Core::Get_Possession(); zEntity)
+        {
+            zEntity->Owned = true;
+        }
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -381,7 +391,7 @@ namespace Elixir::Core
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    void Update_Spell_Position(uint16_t Source, uint16_t Destination)
+    void Update_Spell_Slot(uint16_t Source, uint16_t Destination)
     {
         const auto zTemp1 = s_Spell[Source];
 
@@ -483,12 +493,12 @@ namespace Elixir::Core
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    bool Do_Use(uint32_t Slot, bool Key)
+    bool Do_Use(uint32_t Slot, bool Cursor, bool Key)
     {
         if (s_Item[Slot])
         {
             {
-                Executor::Execute_Do_Use(Slot, Key);
+                Executor::Execute_Do_Use(Slot, Cursor, Key);
             }
             Update_Cooldown(Action::Use, ::GetTickCount());
         }
@@ -507,12 +517,12 @@ namespace Elixir::Core
         if (s_Spell[Slot])
         {
             {
-                Executor::Execute_Do_Cast(Slot, s_Spell_Selected != Slot, Cursor);
+                Executor::Execute_Do_Cast(Slot, Cursor);
             }
             {
                 s_Spell_Selected = Slot;
             }
-            Update_Cooldown(Action::Cast, ::GetTickCount() + Random(100, 300));
+            Update_Cooldown(Action::Cast, ::GetTickCount());
         }
         else
         {
@@ -540,6 +550,19 @@ namespace Elixir::Core
         {
             return false;
         }
+        return true;
+    }
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    bool Do_Rotate(Direction Heading)
+    {
+        {
+            Executor::Execute_Do_Rotate(Heading);
+        }
+        Update_Cooldown(Action::Rotate, ::GetTickCount());
+
         return true;
     }
 }

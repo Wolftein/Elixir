@@ -1,5 +1,5 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2016-2020 by Agustin Alvarez. All rights reserved.
+// Copyright (C) 2016-2021 by Agustin Alvarez. All rights reserved.
 //
 // This work is licensed under the terms of the Apache License, Version 2.0.
 //
@@ -200,7 +200,7 @@ namespace Elixir::Memory
             0x00,
             0x00
         };
-        * ((uint32_t *) & zOpcode[0x01]) = Destination - Address - 0x05;
+        * ((uintptr_t *) & zOpcode[0x01]) = Destination - Address - 0x05;
 
         Write_Opcode(Address, zOpcode, sizeof(zOpcode));
     }

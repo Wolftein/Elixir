@@ -1,5 +1,5 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2016-2020 by Agustin Alvarez. All rights reserved.
+// Copyright (C) 2016-2021 by Agustin Alvarez. All rights reserved.
 //
 // This work is licensed under the terms of the Apache License, Version 2.0.
 //
@@ -69,7 +69,6 @@ namespace Elixir::Controller::UI // TODO this is temporally
                                 ImVec2(zPosition.x + zX * POINT_SCALE + POINT_SCALE,
                                     zPosition.y + zY * POINT_SCALE + POINT_SCALE),
                                 ImColor(139, 69, 19, 255));
-
                             return false;
                         });
                 }
@@ -150,8 +149,8 @@ namespace Elixir::Controller::UI // TODO this is temporally
                     });
 
                 zCanvas->AddRect(
-                    ImVec2(zPosition.x + (25 - 8) * POINT_SCALE, zPosition.y + (25 - 6) * POINT_SCALE),
-                    ImVec2(zPosition.x + (25 + 9) * POINT_SCALE, zPosition.y + (25 + 7) * POINT_SCALE),
+                    ImVec2(zPosition.x + (25 - SETTING_SCREEN_X0) * POINT_SCALE, zPosition.y + (25 - SETTING_SCREEN_Y0) * POINT_SCALE),
+                    ImVec2(zPosition.x + (25 + SETTING_SCREEN_X1) * POINT_SCALE, zPosition.y + (25 + SETTING_SCREEN_Y1) * POINT_SCALE),
                     ImColor(255, 255, 0, 255), 1.0f);
 
                 const ImVec2 zArea1 = ImGui::GetWindowContentRegionMin() + ImVec2(zPosition.x, zPosition.y);
@@ -202,8 +201,8 @@ namespace Elixir::Controller::UI // TODO this is temporally
 
     void _Window_Render_Menu()
     {
-        ImGui::SetNextWindowSize(ImVec2(415, 315));
-        ImGui::Begin("Elixir", nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize);
+        ImGui::SetNextWindowSize(ImVec2(445, 385));
+        ImGui::Begin(SETTING_TITLE, nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize);
         {
             static int32_t s_Type = 1;
 
@@ -212,12 +211,12 @@ namespace Elixir::Controller::UI // TODO this is temporally
                 ImGui::SetColumnOffset(1, 115.f);
 
                 s_Type = (ImGui::Button("Radar", ImVec2(100.f, 20.f))) ? 1 : s_Type;
-                s_Type = (ImGui::Button("Pociones", ImVec2(100.f, 20.f))) ? 2 : s_Type;
+                s_Type = (ImGui::Button("Consumibles", ImVec2(100.f, 20.f))) ? 2 : s_Type;
                 s_Type = (ImGui::Button("Magias", ImVec2(100.f, 20.f))) ? 3 : s_Type;
                 s_Type = (ImGui::Button("Cazador", ImVec2(100.f, 20.f))) ? 4 : s_Type;
+                s_Type = (ImGui::Button("Otros", ImVec2(100.f, 20.f))) ? 5 : s_Type;
 
-                ImGui::SetCursorPosY(260);
-                ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
+                ImGui::SetCursorPosY(330);
 
                 if (ImGui::Button("Guardar", ImVec2(100.f, 20.f)))
                 {
@@ -245,51 +244,74 @@ namespace Elixir::Controller::UI // TODO this is temporally
                 break;
             case 2:
             {
-                int32_t zCooldown = Controller::Potion::Get_Action_Cooldown();
-                int32_t zDelay = Controller::Potion::Get_Action_Delay();
+                int32_t zCooldown = Controller::Item::Get_Action_Cooldown();
+                int32_t zDelay = Controller::Item::Get_Action_Delay();
 
                 if (ImGui::SliderInt("Cooldown", & zCooldown, 1, 1000))
                 {
-                    Controller::Potion::Set_Action_Cooldown(zCooldown);
+                    Controller::Item::Set_Action_Cooldown(zCooldown);
                 }
 
                 if (ImGui::SliderInt("Delay", & zDelay, 1, 1000))
                 {
-                    Controller::Potion::Set_Action_Delay(zDelay);
+                    Controller::Item::Set_Action_Delay(zDelay);
                 }
 
                 ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
 
-                int32_t zBind1 = Controller::Potion::Get_Red_Key();
-                int32_t zBind2 = Controller::Potion::Get_Blue_Key();
-                int32_t zPriority1 = Controller::Potion::Get_Red_Threshold();
-                int32_t zPriority2 = Controller::Potion::Get_Blue_Threshold();
-                int32_t zMinimum1 = Controller::Potion::Get_Red_Minimum();
-                int32_t zMinimum2 = Controller::Potion::Get_Blue_Minimum();
+                int32_t zBind1 = Controller::Item::Get_Red_Key();
+                int32_t zBind2 = Controller::Item::Get_Blue_Key();
+                int32_t zPriority1 = Controller::Item::Get_Red_Threshold();
+                int32_t zPriority2 = Controller::Item::Get_Blue_Threshold();
+                int32_t zMinimum1 = Controller::Item::Get_Red_Minimum();
+                int32_t zMinimum2 = Controller::Item::Get_Blue_Minimum();
+                int32_t zMinimum3 = Controller::Item::Get_Food_Minimum();
+                int32_t zMinimum4 = Controller::Item::Get_Drink_Minimum();
+                int32_t zLoct1 = Controller::Item::Get_Food_Location();
+                int32_t zLoct2 = Controller::Item::Get_Drink_Location();
 
                 if (ImGui::Hotkey("Rojas (Macro)", & zBind1))
                 {
-                    Controller::Potion::Set_Red_Key(zBind1);
+                    Controller::Item::Set_Red_Key(zBind1);
                 }
                 if (ImGui::SliderInt("Rojas  (Emergencia)", & zPriority1, 0, 100, "%d%%"))
                 {
-                    Controller::Potion::Set_Red_Threshold(zPriority1);
+                    Controller::Item::Set_Red_Threshold(zPriority1);
                 }
                 if (ImGui::SliderInt("Rojas  (Minimo)", & zMinimum1, 1, 750))
                 {
-                    Controller::Potion::Set_Red_Minimum(zMinimum1);
+                    Controller::Item::Set_Red_Minimum(zMinimum1);
                 }
                 if (ImGui::Hotkey("Azules (Macro)", & zBind2))
                 {
-                    Controller::Potion::Set_Blue_Key(zBind2);
+                    Controller::Item::Set_Blue_Key(zBind2);
                 }
                 if (ImGui::SliderInt("Azules (Emergencia)", & zPriority2, 0, 100, "%d%%"))
                 {
-                    Controller::Potion::Set_Blue_Threshold(zPriority2);
+                    Controller::Item::Set_Blue_Threshold(zPriority2);
                 }
                 if (ImGui::SliderInt("Azules (Minimo)", & zMinimum2, 1, 4000))
                 {
-                    Controller::Potion::Set_Blue_Minimum(zMinimum2);
+                    Controller::Item::Set_Blue_Minimum(zMinimum2);
+                }
+
+                ImGui::NewLine();
+
+                if (ImGui::SliderInt("Comida (Minimo)", & zMinimum3, 0, 100))
+                {
+                    Controller::Item::Set_Food_Minimum(zMinimum3);
+                }
+                if (ImGui::SliderInt("Comida (Slot)", & zLoct1, 0, 42))
+                {
+                    Controller::Item::Set_Food_Location(zLoct1);
+                }
+                if (ImGui::SliderInt("Bebida (Minimo)", & zMinimum4, 0, 100))
+                {
+                    Controller::Item::Set_Drink_Minimum(zMinimum4);
+                }
+                if (ImGui::SliderInt("Bebida (Slot)", & zLoct2, 0, 42))
+                {
+                    Controller::Item::Set_Drink_Location(zLoct2);
                 }
             }
                 break;
@@ -455,7 +477,7 @@ namespace Elixir::Controller::UI // TODO this is temporally
                 int32_t zBind = Controller::Ranger::Get_Aim_Key();
                 int32_t zLoct = Controller::Ranger::Get_Aim_Location();
 
-                if (ImGui::Hotkey("Key", & zBind))
+                if (ImGui::Hotkey("Tecla", & zBind))
                 {
                     Controller::Ranger::Set_Aim_Key(zBind);
                 }
@@ -465,6 +487,26 @@ namespace Elixir::Controller::UI // TODO this is temporally
                 }
             }
                 break;
+            case 5:
+            {
+                bool zRotate     = Controller::Misc::Get_Spin();
+                bool zRemoveText = Controller::Caster::Get_Remove_Text();
+                bool zPick       = Controller::Misc::Get_Pick();
+
+                if (ImGui::Checkbox("Agarrar automaticamente", & zPick))
+                {
+                    Controller::Misc::Set_Pick(zPick);
+                }
+                if (ImGui::Checkbox("Spinbox", & zRotate))
+                {
+                    Controller::Misc::Set_Spin(zRotate);
+                }
+                if (ImGui::Checkbox("Cortar carteles", & zRemoveText))
+                {
+                    Controller::Caster::Set_Remove_Text(zRemoveText);
+                }
+            }
+            break;
             }
         }
         ImGui::Columns(1);

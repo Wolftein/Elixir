@@ -1,5 +1,5 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2016-2020 by Agustin Alvarez. All rights reserved.
+// Copyright (C) 2016-2021 by Agustin Alvarez. All rights reserved.
 //
 // This work is licensed under the terms of the Apache License, Version 2.0.
 //
@@ -20,159 +20,165 @@
 
 namespace Elixir::Core
 {
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     uint32_t Get_Energy();
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     uint32_t Get_Energy_Maximum();
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     uint32_t Get_Experience();
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     uint32_t Get_Experience_Maximum();
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     uint32_t Get_Gold();
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     uint32_t Get_Health();
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     uint32_t Get_Health_Maximum();
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     uint32_t Get_Hunger();
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     uint32_t Get_Hunger_Maximum();
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     uint32_t Get_Level();
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     Entity * Get_Possession();
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     uint32_t Get_Stamina();
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     uint32_t Get_Stamina_Maximum();
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     uint32_t Get_Thirst();
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     uint32_t Get_Thirst_Maximum();
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     uint16_t Get_Item(uint16_t Type);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
+    uint16_t Get_Item(uint16_t Type, uint16_t Type_2);
+
+    // -=(Undocumented)=-
     uint16_t Get_Item_Type(uint8_t Position);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     uint32_t Get_Item_Quantity(uint8_t Position);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     uint16_t Get_Spell(uint8_t Position);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     uint16_t Get_Spell_Selected();
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Update_Energy(uint32_t Energy);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Update_Energy_Maximum(uint32_t Energy);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Update_Experience(uint32_t Experience);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Update_Experience_Maximum(uint32_t Experience);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Update_Gold(uint32_t Gold);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Update_Health(uint32_t Health);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Update_Health_Maximum(uint32_t Health);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Update_Hunger(uint32_t Hunger);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Update_Hunger_Maximum(uint32_t Hunger);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Update_Level(uint32_t Level);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Update_Possession(uint32_t Possession);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Update_Stamina(uint32_t Stamina);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Update_Stamina_Maximum(uint32_t Stamina);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Update_Thirst(uint32_t Thirst);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Update_Thirst_Maximum(uint32_t Thirst);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Update_Mode(bool Inventory);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Update_Item(uint16_t Position, uint16_t Type, uint32_t Quantity);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Update_Item_Position(uint16_t Source, uint16_t Destination);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Update_Spell(uint16_t Position, uint16_t Type);
 
-    // (Missing Documentation)
-    void Update_Spell_Position(uint16_t Source, uint16_t Destination);
+    // -=(Undocumented)=-
+    void Update_Spell_Slot(uint16_t Source, uint16_t Destination);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Update_Spell_Selected(uint16_t Spell);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Update_Cooldown(Action Type, uint32_t Time);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Update_Clickable(bool Clickeable);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     bool Is_Alive();
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     bool Is_Allowed(Action Type, uint32_t Delay);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     bool Is_Range(Entity * Other);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     bool Is_Inventory();
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     bool Is_Clickable();
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     bool Do_Mode(bool Inventory);
 
-    // (Missing Documentation)
-    bool Do_Use(uint32_t Slot, bool Key);
+    // -=(Undocumented)=-
+    bool Do_Use(uint32_t Slot, bool Cursor, bool Key);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     bool Do_Cast(uint32_t Slot, bool Cursor);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     bool Do_Click(uint32_t X, uint32_t Y, Attack Type);
+
+    // -=(Undocumented)=-
+    bool Do_Rotate(Direction Heading);
 }

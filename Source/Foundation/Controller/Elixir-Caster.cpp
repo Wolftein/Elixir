@@ -1,5 +1,5 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2016-2020 by Agustin Alvarez. All rights reserved.
+// Copyright (C) 2016-2021 by Agustin Alvarez. All rights reserved.
 //
 // This work is licensed under the terms of the Apache License, Version 2.0.
 //
@@ -18,13 +18,14 @@
 
 namespace Elixir::Controller::Caster
 {
-    static uint32_t s_Action_Cooldown  = 700;
+    static uint32_t s_Action_Cooldown  = 1300;
     static uint32_t s_Action_Delay     = 300;
     static uint32_t s_Aim_Key[5];
     static uint16_t s_Aim_Location[5];
     static bool     s_Aim_Macro[5];
     static bool     s_Aim_Self[5];
     static uint32_t s_Aim_Odds         = 100;
+    static bool     s_Remove_Text      = false;
     static uint16_t s_Last_Aim         = 0;
     static uint32_t s_Last_Magic       = UINT32_MAX;
     static bool     s_Last_Click       = false;
@@ -40,7 +41,7 @@ namespace Elixir::Controller::Caster
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    bool _On_Action(uint32_t Time)
+    bool On_Action()
     {
         Core::Entity * zTarget = s_Last_Self ? Core::Get_Possession() : Core::Find_Entity(s_Last_Aim);
 
@@ -48,6 +49,11 @@ namespace Elixir::Controller::Caster
         {
             uint32_t zX = zTarget->X;
             uint32_t zY = zTarget->Y;
+
+            if (Core::Find_Entity(zX, zY + 1) != nullptr)
+            {
+                --zY;
+            }
 
             if (s_Aim_Odds < Random(1, 100) && !s_Last_Self)
             {
@@ -60,13 +66,17 @@ namespace Elixir::Controller::Caster
                 s_Last_Click = s_Last_Self = false;
             }
         }
+        else
+        {
+            s_Last_Click = s_Last_Self = false;
+        }
         return true;
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    bool _On_Action(uint32_t Time, uint32_t ID)
+    bool On_Action(uint32_t Time, uint32_t ID)
     {
         if (!Core::Is_Inventory())
         {
@@ -175,6 +185,22 @@ namespace Elixir::Controller::Caster
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+    void Set_Remove_Text(bool Active)
+    {
+        s_Remove_Text = Active;
+    }
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    bool Get_Remove_Text()
+    {
+        return s_Remove_Text;
+    }
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
     uint32_t Get_Action_Cooldown()
     {
         return s_Action_Cooldown;
@@ -241,7 +267,6 @@ namespace Elixir::Controller::Caster
 
     void On_Module_Load(HANDLE File)
     {
-        // TODO replace this with a single struct, by I'm lazy...
         ::ReadFile(File, & s_Action_Cooldown, sizeof(s_Action_Cooldown), nullptr, nullptr);
         ::ReadFile(File, & s_Action_Delay, sizeof(s_Action_Delay), nullptr, nullptr);
         ::ReadFile(File, & s_Aim_Key, sizeof(s_Aim_Key), nullptr, nullptr);
@@ -249,6 +274,7 @@ namespace Elixir::Controller::Caster
         ::ReadFile(File, & s_Aim_Macro, sizeof(s_Aim_Macro), nullptr, nullptr);
         ::ReadFile(File, & s_Aim_Self, sizeof(s_Aim_Self), nullptr, nullptr);
         ::ReadFile(File, & s_Aim_Odds, sizeof(s_Aim_Odds), nullptr, nullptr);
+        ::ReadFile(File, & s_Remove_Text, sizeof(s_Remove_Text), nullptr, nullptr);
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -256,7 +282,6 @@ namespace Elixir::Controller::Caster
 
     void On_Module_Save(HANDLE File)
     {
-        // TODO replace this with a single struct, by I'm lazy...
         ::WriteFile(File, & s_Action_Cooldown, sizeof(s_Action_Cooldown), nullptr, nullptr);
         ::WriteFile(File, & s_Action_Delay, sizeof(s_Action_Delay), nullptr, nullptr);
         ::WriteFile(File, & s_Aim_Key, sizeof(s_Aim_Key), nullptr, nullptr);
@@ -264,6 +289,7 @@ namespace Elixir::Controller::Caster
         ::WriteFile(File, & s_Aim_Macro, sizeof(s_Aim_Macro), nullptr, nullptr);
         ::WriteFile(File, & s_Aim_Self, sizeof(s_Aim_Self), nullptr, nullptr);
         ::WriteFile(File, & s_Aim_Odds, sizeof(s_Aim_Odds), nullptr, nullptr);
+        ::WriteFile(File, & s_Remove_Text, sizeof(s_Remove_Text), nullptr, nullptr);
     }
 
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -277,13 +303,13 @@ namespace Elixir::Controller::Caster
             {
                 if (Application::Is_Pressed(s_Aim_Key[zID]) || s_Last_Magic == zID)
                 {
-                    return _On_Action(Time, zID);
+                    return On_Action(Time, zID);
                 }
             }
         }
         if (Core::Is_Alive() && Core::Is_Allowed(Core::Action::Click, s_Action_Cooldown) && s_Last_Click)
         {
-            return _On_Action(Time);
+            return On_Action();
         }
         return (s_Last_Magic == UINT32_MAX);
     }

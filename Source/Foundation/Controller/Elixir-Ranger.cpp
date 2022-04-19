@@ -1,5 +1,5 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2016-2020 by Agustin Alvarez. All rights reserved.
+// Copyright (C) 2016-2021 by Agustin Alvarez. All rights reserved.
 //
 // This work is licensed under the terms of the Apache License, Version 2.0.
 //
@@ -37,7 +37,7 @@ namespace Elixir::Controller::Ranger
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    bool _On_Action(uint32_t Time)
+    bool On_Action(uint32_t Time)
     {
         Core::Entity * zTarget = Core::Find_Entity(Caster::Get_Aim_Target());
 
@@ -63,7 +63,7 @@ namespace Elixir::Controller::Ranger
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    bool _On_Action_Prepare(uint32_t Time)
+    bool On_Action_Prepare(uint32_t Time)
     {
         if (Core::Is_Inventory())
         {
@@ -75,7 +75,11 @@ namespace Elixir::Controller::Ranger
                 s_Last_Change = false;
                 s_Last_Click = (Caster::Get_Aim_Target() > 0);
             }
-            return Core::Do_Use(s_Aim_Location, false);
+            return Core::Do_Use(s_Aim_Location, false, false);
+        }
+        else if (Core::Do_Mode(true))
+        {
+            s_Last_Change = true;
         }
         return false;
     }
@@ -165,7 +169,6 @@ namespace Elixir::Controller::Ranger
 
     void On_Module_Load(HANDLE File)
     {
-        // TODO replace this with a single struct, by I'm lazy...
         ::ReadFile(File, & s_Action_Cooldown, sizeof(s_Action_Cooldown), nullptr, nullptr);
         ::ReadFile(File, & s_Action_Delay, sizeof(s_Action_Delay), nullptr, nullptr);
         ::ReadFile(File, & s_Aim_Key, sizeof(s_Aim_Key), nullptr, nullptr);
@@ -178,7 +181,6 @@ namespace Elixir::Controller::Ranger
 
     void On_Module_Save(HANDLE File)
     {
-        // TODO replace this with a single struct, by I'm lazy...
         ::WriteFile(File, & s_Action_Cooldown, sizeof(s_Action_Cooldown), nullptr, nullptr);
         ::WriteFile(File, & s_Action_Delay, sizeof(s_Action_Delay), nullptr, nullptr);
         ::WriteFile(File, & s_Aim_Key, sizeof(s_Aim_Key), nullptr, nullptr);
@@ -191,16 +193,19 @@ namespace Elixir::Controller::Ranger
 
     bool On_Module_Tick(uint32_t Time)
     {
-        if (Core::Is_Alive() && Core::Is_Allowed(Core::Action::Cast, s_Action_Cooldown))
+        if (Core::Is_Alive())
         {
-            if (Application::Is_Pressed(s_Aim_Key) || s_Last_Change)
+            if (Core::Is_Allowed(Core::Action::Click, s_Action_Cooldown) && s_Last_Click)
             {
-                return _On_Action_Prepare(Time);
+                return On_Action(Time);
             }
-        }
-        if (Core::Is_Alive() && Core::Is_Allowed(Core::Action::Click, s_Action_Cooldown) && s_Last_Click)
-        {
-            return _On_Action(Time);
+            else if (Core::Is_Allowed(Core::Action::Cast, s_Action_Cooldown))
+            {
+                if (Application::Is_Pressed(s_Aim_Key) || s_Last_Change)
+                {
+                    return On_Action_Prepare(Time);
+                }
+            }
         }
         return (!s_Last_Change);
     }

@@ -18,7 +18,7 @@
 // [   CODE   ]
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-namespace Elixir::Controller::Caster
+namespace Elixir::Controller::Item
 {
     // -=(Undocumented)=-
     void Set_Action_Cooldown(uint32_t Cooldown);
@@ -27,28 +27,40 @@ namespace Elixir::Controller::Caster
     void Set_Action_Delay(uint32_t Delay);
 
     // -=(Undocumented)=-
-    void Set_Aim_Odds(uint32_t Odds);
+    void Set_Red_Key(uint32_t Key);
 
     // -=(Undocumented)=-
-    void Set_Aim_Key(uint32_t ID, uint32_t Key);
+    void Set_Red_Type(uint32_t Type);
 
     // -=(Undocumented)=-
-    void Set_Aim_Location(uint32_t ID, uint16_t Location);
+    void Set_Red_Minimum(uint32_t Minimum);
 
     // -=(Undocumented)=-
-    void Set_Aim_Macro(uint32_t ID, bool Macro);
+    void Set_Red_Threshold(uint32_t Threshold);
 
     // -=(Undocumented)=-
-    void Set_Aim_Self(uint32_t ID, bool Self);
+    void Set_Blue_Key(uint32_t Key);
 
     // -=(Undocumented)=-
-    bool Set_Aim_Target(uint16_t X, uint16_t Y, bool Upward);
+    void Set_Blue_Type(uint32_t Type);
 
     // -=(Undocumented)=-
-    void Set_Remove_Text(bool Active);
+    void Set_Blue_Minimum(uint32_t Minimum);
 
     // -=(Undocumented)=-
-    bool Get_Remove_Text();
+    void Set_Blue_Threshold(uint32_t Threshold);
+
+    // -=(Undocumented)=-
+    void Set_Food_Location(uint16_t Location);
+
+    // -=(Undocumented)=-
+    void Set_Food_Minimum(uint32_t Minimum);
+
+    // -=(Undocumented)=-
+    void Set_Drink_Location(uint16_t Location);
+
+    // -=(Undocumented)=-
+    void Set_Drink_Minimum(uint32_t Minimum);
 
     // -=(Undocumented)=-
     uint32_t Get_Action_Cooldown();
@@ -57,22 +69,40 @@ namespace Elixir::Controller::Caster
     uint32_t Get_Action_Delay();
 
     // -=(Undocumented)=-
-    uint32_t Get_Aim_Odds();
+    uint32_t Get_Red_Key();
 
     // -=(Undocumented)=-
-    uint32_t Get_Aim_Key(uint32_t ID);
+    uint32_t Get_Red_Type();
 
     // -=(Undocumented)=-
-    uint16_t Get_Aim_Location(uint32_t ID);
+    uint32_t Get_Red_Minimum();
 
     // -=(Undocumented)=-
-    bool Get_Aim_Macro(uint32_t ID);
+    uint32_t Get_Red_Threshold();
 
     // -=(Undocumented)=-
-    bool Get_Aim_Self(uint32_t ID);
+    uint32_t Get_Blue_Key();
 
     // -=(Undocumented)=-
-    uint16_t Get_Aim_Target();
+    uint32_t Get_Blue_Type();
+
+    // -=(Undocumented)=-
+    uint32_t Get_Blue_Minimum();
+
+    // -=(Undocumented)=-
+    uint32_t Get_Blue_Threshold();
+
+    // -=(Undocumented)=-
+    uint16_t Get_Food_Location();
+
+    // -=(Undocumented)=-
+    uint32_t Get_Food_Minimum();
+
+    // -=(Undocumented)=-
+    uint16_t Get_Drink_Location();
+
+    // -=(Undocumented)=-
+    uint32_t Get_Drink_Minimum();
 
     // -=(Undocumented)=-
     void On_Module_Load(HANDLE File);

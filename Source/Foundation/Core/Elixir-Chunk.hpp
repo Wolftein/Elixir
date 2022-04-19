@@ -1,5 +1,5 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2016-2020 by Agustin Alvarez. All rights reserved.
+// Copyright (C) 2016-2021 by Agustin Alvarez. All rights reserved.
 //
 // This work is licensed under the terms of the Apache License, Version 2.0.
 //
@@ -33,7 +33,7 @@ namespace Elixir::Core
     //
     enum class Action
     {
-        Mode, Use, Cast, Click
+        Mode, Use, Cast, Click, Rotate
     };
 
     //
@@ -68,6 +68,7 @@ namespace Elixir::Core
         uint16_t ID;
         uint16_t X;
         uint16_t Y;
+        uint32_t Stack;
     };
 
     //
@@ -153,7 +154,7 @@ namespace Elixir::Core
     // \param X  the object's x coordinate
     // \param Y  the object's y coordinate
     //
-    void Create_Object(uint16_t ID, uint16_t X, uint16_t Y);
+    void Create_Object(uint16_t ID, uint16_t X, uint16_t Y, uint32_t Stack);
 
     //
     // Find an entity.
@@ -163,6 +164,16 @@ namespace Elixir::Core
     // \return the entity that matches the given criteria, or nullptr
     //
     Object * Find_Object(std::function<bool(const Object &)> Filter);
+
+    //
+    // Find an entity.
+    //
+    // \param X  the object's x coordinate
+    // \param Y  the object's y coordinate
+    //
+    // \return the entity, or nullptr
+    //
+    Object * Find_Object(uint16_t X, uint16_t Y);
 
     //
     // Destroy the entity with the given id.

@@ -1,5 +1,5 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2016-2020 by Agustin Alvarez. All rights reserved.
+// Copyright (C) 2016-2021 by Agustin Alvarez. All rights reserved.
 //
 // This work is licensed under the terms of the Apache License, Version 2.0.
 //
@@ -20,42 +20,42 @@
 
 namespace Elixir::Controller::Ranger
 {
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Set_Action_Cooldown(uint32_t Cooldown);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Set_Action_Delay(uint32_t Delay);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Set_Aim_Odds(uint32_t Odds);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Set_Aim_Key(uint32_t Key);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void Set_Aim_Location(uint16_t Location);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     uint32_t Get_Action_Cooldown();
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     uint32_t Get_Action_Delay();
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     uint32_t Get_Aim_Odds();
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     uint32_t Get_Aim_Key();
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     uint16_t Get_Aim_Location();
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void On_Module_Load(HANDLE File);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void On_Module_Save(HANDLE File);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     bool On_Module_Tick(uint32_t Time);
 }

@@ -1,5 +1,5 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2016-2020 by Agustin Alvarez. All rights reserved.
+// Copyright (C) 2016-2021 by Agustin Alvarez. All rights reserved.
 //
 // This work is licensed under the terms of the Apache License, Version 2.0.
 //
@@ -20,12 +20,12 @@
 
 namespace Elixir::Controller::UI
 {
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void On_Module_Load(HANDLE File);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     void On_Module_Save(HANDLE File);
 
-    // (Missing Documentation)
+    // -=(Undocumented)=-
     bool On_Module_Tick(uint32_t Time);
 }
